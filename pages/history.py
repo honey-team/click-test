@@ -1,13 +1,13 @@
-import flet as ft
 import sqlite3
-import utils.theme_colors as clr
+
+import flet as ft
+
+from utils.constants import set_appbar
+
 
 def init_history(page: ft.Page):
-    page.appbar = ft.AppBar(
-        title=ft.Text('Click test'),
-        center_title=False,
-        bgcolor=clr.appbar(page),
-    )
+    set_appbar(page, 'history')
+    page.update()
 
     def get_history():
         cn = sqlite3.connect('history.db')
@@ -16,27 +16,29 @@ def init_history(page: ft.Page):
         cr.execute('SELECT * FROM history')
         rows = cr.fetchall()
         return rows
-    
+
     rows = get_history()
 
     datarows = []
 
     for clicks, cps, time in rows[::-1]:
-        datarows.append(ft.DataRow(
-            cells=[
-                ft.DataCell(ft.Text(clicks)),
-                ft.DataCell(ft.Text(cps)),
-                ft.DataCell(ft.Text(time))
-            ]
-        ))
+        datarows.append(
+            ft.DataRow(
+                cells=[
+                    ft.DataCell(ft.Text(clicks)),
+                    ft.DataCell(ft.Text(cps)),
+                    ft.DataCell(ft.Text(time)),
+                ]
+            )
+        )
 
     table = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text('Клики'), numeric=True),
             ft.DataColumn(ft.Text('Средний КПС'), numeric=True),
-            ft.DataColumn(ft.Text('Время'), numeric=True)
+            ft.DataColumn(ft.Text('Время'), numeric=True),
         ],
-        rows=datarows
+        rows=datarows,
     )
     lv = ft.ListView([table], expand=True, spacing=10)
     page.add(lv)
